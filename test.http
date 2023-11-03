@@ -1,0 +1,40 @@
+@baseURL = http://localhost:7071/api
+@taskId = Task001
+@contentType = application/json
+
+### List all tasks
+GET {{baseURL}}/tasks
+Accept: {{contentType}}
+
+### Add a new task
+POST {{baseURL}}/tasks
+Content-Type: {{contentType}}
+Accept: {{contentType}}
+
+{
+    "title": "New Task",
+    "description": "This is a new task.",
+    "estimatedTime": 60,
+    "dueDate": "2023-11-30T12:00:00Z"
+}
+
+### Get a specific task
+GET {{baseURL}}/tasks/{{taskId}}
+Accept: {{contentType}}
+
+### Update a task
+PUT {{baseURL}}/tasks/{{taskId}}
+Content-Type: {{contentType}}
+Accept: {{contentType}}
+
+{
+    "title": "Updated Task",
+    "description": "This task has been updated.",
+    "priority": "High",
+    "estimatedTime": 90,
+    "isComplete": false
+}
+
+### Delete a task
+DELETE {{baseURL}}/tasks/{{taskId}}
+Accept: {{contentType}}

@@ -1,0 +1,18 @@
+{
+    "schema_version": "v1",
+    "name_for_model": "personal_assistant",
+    "name_for_human": "AI-Powered Personal Assistant",
+    "description_for_model": "An AI-powered personal assistant designed for dynamic task management. It prioritizes tasks, tracks time spent on each task, estimates time required, alerts when the workload is too heavy for a day, and learns from user behavior to optimize task scheduling and time management.",
+    "description_for_human": "Your personal assistant for managing tasks, scheduling, and optimizing your workday.",
+    "auth": {
+        "type": "none"
+      },
+    "api": {
+      "type": "openapi",
+      "url": "https://todoassistant.azurewebsites.net/.well-known/openapi.yaml"
+    },
+    "logo_url": "https://todoassistant.azurewebsites.net/.well-known/logo.png",
+    "contact_email": "support@your-assistant-app.com",
+    "legal_info_url": "https://todoassistant.azurewebsites.net/legal.htm"
+  }
+  
