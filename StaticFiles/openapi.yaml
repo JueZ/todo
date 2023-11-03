@@ -6,7 +6,7 @@ info:
   contact:
     email: support@your-assistant-app.com
 servers:
-  - url: https://todoassistant.azurewebsites.net/api
+  - url: http://localhost:7071/api
     description: Production server
 paths:
   /tasks:

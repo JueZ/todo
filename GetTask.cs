@@ -42,6 +42,13 @@ namespace juez.functions
                 response = req.CreateResponse(HttpStatusCode.NotFound);
             }
 
+                // Manually add CORS headers
+    response.Headers.Add("Access-Control-Allow-Origin", "*");
+    response.Headers.Add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    response.Headers.Add("Access-Control-Allow-Headers", "Content-Type, Set-Cookie");
+    response.Headers.Add("Access-Control-Allow-Credentials", "true");
+
+
             return response;
         }
 

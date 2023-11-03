@@ -31,13 +31,20 @@ namespace juez.functions
 
             try
             {
-                await tableClient.DeleteEntityAsync("default", taskId); // Assuming 'default' is your PartitionKey
+                await tableClient.DeleteEntityAsync("default_partition", taskId); // Assuming 'default' is your PartitionKey
             }
             catch (RequestFailedException e)
             {
                 logger.LogInformation($"Could not delete task: {e.Message}");
                 response = req.CreateResponse(HttpStatusCode.InternalServerError);
             }
+
+                // Manually add CORS headers
+    response.Headers.Add("Access-Control-Allow-Origin", "*");
+    response.Headers.Add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    response.Headers.Add("Access-Control-Allow-Headers", "Content-Type, Set-Cookie");
+    response.Headers.Add("Access-Control-Allow-Credentials", "true");
+
 
             return response;
         }
