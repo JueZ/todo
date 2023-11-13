@@ -1,10 +1,10 @@
 using System.Net;
-using System.Reflection;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using Azure.Data.Tables;
+using System.Collections.Generic;
 
 namespace juez.functions
 {
@@ -18,53 +18,26 @@ namespace juez.functions
         }
 
         [Function("ListTasks")]
-        public HttpResponseData Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "api/tasks")] HttpRequestData req,
-            [TableInput("todos", Connection = "AzureWebJobsStorage")] IEnumerable<TodoTask> tableInputs,
+        public static async Task<HttpResponseData> Run(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "api/tasks/{partitionKey}")] HttpRequestData req,
+            string partitionKey,
             FunctionContext context)
         {
-            _logger.LogInformation("C# HTTP trigger function processed a request.");
+            var logger = context.GetLogger("ListTasks");
+            logger.LogInformation("Listing tasks.");
+
+            var tableServiceClient = new TableServiceClient(Environment.GetEnvironmentVariable("AzureWebJobsStorage"));
+            var tableClient = tableServiceClient.GetTableClient("todos");
 
             var response = req.CreateResponse(HttpStatusCode.OK);
             response.Headers.Add("Content-Type", "application/json");
 
-            // Serialize the IEnumerable of TodoTask to JSON and write it to the response body.
-            // Exclude the Description property from serialization
-            var settings = new JsonSerializerSettings
+            await foreach (var task in tableClient.QueryAsync<TodoTask>(entity => entity.PartitionKey == partitionKey))
             {
-                ContractResolver = new IgnorePropertyContractResolver(nameof(TodoTask.Description))
-            };
-            response.WriteString(JsonConvert.SerializeObject(tableInputs, settings));
-            
-    // Manually add CORS headers
-    response.Headers.Add("Access-Control-Allow-Origin", "*");
-    response.Headers.Add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    response.Headers.Add("Access-Control-Allow-Headers", "Content-Type, Set-Cookie");
-    response.Headers.Add("Access-Control-Allow-Credentials", "true");
-
+                response.WriteString(JsonConvert.SerializeObject(task));
+            }
 
             return response;
         }
-
-        // Custom contract resolver to ignore specific properties during serialization
-        public class IgnorePropertyContractResolver : DefaultContractResolver
-        {
-            private readonly HashSet<string> _ignoreProps;
-            public IgnorePropertyContractResolver(params string[] propNames)
-            {
-                _ignoreProps = new HashSet<string>(propNames);
-            }
-
-            protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
-            {
-                var property = base.CreateProperty(member, memberSerialization);
-                if (_ignoreProps.Contains(property.PropertyName))
-                {
-                    property.ShouldSerialize = _ => false;
-                }
-                return property;
-            }
-        }
-
     }
 }

@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using System.Net;
 using Azure;
 using Azure.Data.Tables;
@@ -19,8 +21,8 @@ namespace juez.functions
 
         [Function("UpdateTask")]
         public static async Task<HttpResponseData> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "put", Route = "api/tasks/{taskId}")] HttpRequestData req,
-            string taskId, // Task ID from the route
+            [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "api/tasks/{partitionKey}/{taskId}")] HttpRequestData req,
+            string partitionKey, string taskId,
             FunctionContext executionContext)
         {
             var logger = executionContext.GetLogger("UpdateTask");
@@ -32,20 +34,26 @@ namespace juez.functions
 
             try
             {
+                // Fetch the existing task
+                var existingTaskResult = await tableClient.GetEntityAsync<TodoTask>(partitionKey, taskId);
+                var existingTask = existingTaskResult.Value;
+
+                // Read and update the task
                 string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
                 TodoTask updatedTask = JsonConvert.DeserializeObject<TodoTask>(requestBody);
-                updatedTask.RowKey = taskId; // Ensure the RowKey is set to the taskId from the route
-                updatedTask.PartitionKey = "default"; // Assuming 'default' is your PartitionKey
+                updatedTask.ETag = existingTask.ETag; // Set the ETag from the existing entity
+                updatedTask.PartitionKey = partitionKey;
+                updatedTask.RowKey = taskId;
+
                 await tableClient.UpdateEntityAsync(updatedTask, updatedTask.ETag, TableUpdateMode.Replace);
             }
             catch (RequestFailedException e)
             {
-                logger.LogInformation($"Could not update task: {e.Message}");
+                logger.LogError($"Could not update task: {e.Message}");
                 response = req.CreateResponse(HttpStatusCode.InternalServerError);
             }
 
             return response;
         }
-
     }
 }

@@ -1,13 +1,14 @@
 using Azure;
+using Azure.Data.Tables;
 
-public class TodoTask : Azure.Data.Tables.ITableEntity
+public class TodoTask : ITableEntity
 {
-    public string PartitionKey { get; set; } // This can represent the category of the task.
-    public string RowKey { get; set; } // This can be a unique identifier for the task.
+    public string PartitionKey { get; set; } // Represents the username or userID.
+    public string RowKey { get; set; } // Unique identifier for the task.
     public string Title { get; set; }
     public string Description { get; set; }
     public string Priority { get; set; }
-    public int EstimatedTime { get; set; }
+    public long EstimatedTime { get; set; }
     public string DueDate { get; set; }
     public bool IsComplete { get; set; }
     public string CreatedAt { get; set; }

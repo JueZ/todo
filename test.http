@@ -1,40 +1,51 @@
-@baseURL = http://localhost:7071/api
-@taskId = Task001
-@contentType = application/json
+#@baseUrl = http://localhost:7071/api
+@username = username1
+@taskId = 4de43eeb-dd66-48ad-b0b0-6aeedf09d0aa
+# Base URL for the API
+@baseUrl = https://todoassistant.azurewebsites.net/api
 
-### List all tasks
-GET {{baseURL}}/tasks
-Accept: {{contentType}}
+### List all tasks for a user
+GET {{baseUrl}}/tasks/{{username}}
+Authorization: Bearer {your_token_here}
+Content-Type: application/json
 
 ### Add a new task
-POST {{baseURL}}/tasks
-Content-Type: {{contentType}}
-Accept: {{contentType}}
+POST {{baseUrl}}/tasks
+Authorization: Bearer {your_token_here}
+Content-Type: application/json
 
 {
-    "title": "New Task",
-    "description": "This is a new task.",
-    "estimatedTime": 60,
-    "dueDate": "2023-11-30T12:00:00Z"
+    "PartitionKey": "username1",
+    "Title": "New Task",
+    "Description": "This is a test task",
+    "Priority": "Medium",
+    "EstimatedTime": 30,
+    "DueDate": "2023-11-30T12:00:00Z",
+    "IsComplete": false
 }
 
 ### Get a specific task
-GET {{baseURL}}/tasks/{{taskId}}
-Accept: {{contentType}}
+GET {{baseUrl}}/tasks/{{username}}/{{taskId}}
+Authorization: Bearer {your_token_here}
+Content-Type: application/json
 
 ### Update a task
-PUT {{baseURL}}/tasks/{{taskId}}
-Content-Type: {{contentType}}
-Accept: {{contentType}}
+PUT {{baseUrl}}/tasks/{{username}}/{{taskId}}
+Authorization: Bearer {your_token_here}
+Content-Type: application/json
 
 {
-    "title": "Updated Task",
-    "description": "This task has been updated.",
-    "priority": "High",
-    "estimatedTime": 90,
-    "isComplete": false
+    "PartitionKey": "username1",
+    "RowKey": "{{taskId}}",
+    "Title": "Updated Task",
+    "Description": "Updated description",
+    "Priority": "High",
+    "EstimatedTime": 45,
+    "DueDate": "2023-12-01T12:00:00Z",
+    "IsComplete": true
 }
 
 ### Delete a task
-DELETE {{baseURL}}/tasks/{{taskId}}
-Accept: {{contentType}}
+DELETE {{baseUrl}}/tasks/{{username}}/{{taskId}}
+Authorization: Bearer {your_token_here}
+Content-Type: application/json

@@ -19,8 +19,8 @@ namespace juez.functions
 
         [Function("GetTask")]
         public static async Task<HttpResponseData> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "api/tasks/{taskId}")] HttpRequestData req,
-            string taskId, // Task ID from the route
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "api/tasks/{partitionKey}/{taskId}")] HttpRequestData req,
+            string partitionKey, string taskId,
             FunctionContext executionContext)
         {
             var logger = executionContext.GetLogger("GetTask");
@@ -32,7 +32,7 @@ namespace juez.functions
 
             try
             {
-                var taskEntity = await tableClient.GetEntityAsync<TodoTask>("default", taskId); // Assuming 'default' is your PartitionKey
+                var taskEntity = await tableClient.GetEntityAsync<TodoTask>(partitionKey, taskId);
                 response.Headers.Add("Content-Type", "application/json");
                 response.WriteString(JsonConvert.SerializeObject(taskEntity.Value));
             }
@@ -42,15 +42,7 @@ namespace juez.functions
                 response = req.CreateResponse(HttpStatusCode.NotFound);
             }
 
-                // Manually add CORS headers
-    response.Headers.Add("Access-Control-Allow-Origin", "*");
-    response.Headers.Add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    response.Headers.Add("Access-Control-Allow-Headers", "Content-Type, Set-Cookie");
-    response.Headers.Add("Access-Control-Allow-Credentials", "true");
-
-
             return response;
         }
-
     }
 }

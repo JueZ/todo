@@ -9,7 +9,7 @@
       },
     "api": {
       "type": "openapi",
-      "url": "http://localhost:7071/.well-known/openapi.yaml"
+      "url": "https://todoassistant.azurewebsites.net/.well-known/openapi.yaml"
     },
     "logo_url": "https://todoassistant.azurewebsites.net/.well-known/logo.png",
     "contact_email": "support@your-assistant-app.com",

@@ -1,60 +1,84 @@
-openapi: 3.0.0
+openapi: 3.0.1
 info:
-  title: AI-Powered Personal Assistant API
-  description: API for a personal assistant that manages tasks with advanced prioritization, time tracking, and estimation features.
+  title: Azure Functions Todo Assistant API
   version: "1.0.0"
+  description: API for managing tasks in a Todo Assistant application.
   contact:
-    email: support@your-assistant-app.com
+    name: Todo Assistant API Support
+    email: support@todoassistant.com
 servers:
-  - url: http://localhost:7071/api
-    description: Production server
+  - url: https://todoassistant.azurewebsites.net/api
 paths:
-  /tasks:
+  /tasks/{category}:
     get:
-      summary: List all tasks
-      operationId: listTasks
+      summary: List all tasks for a user
+      operationId: listUserTasks
+      parameters:
+        - name: category
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: An array of prioritized tasks
+          description: An array of tasks for the specified user
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Task'
+                  $ref: '#/components/schemas/TodoTask'
+
+  /tasks:
     post:
-      summary: Add a new task with estimation
-      operationId: addTask
+      summary: Add a new task
+      operationId: addNewTask
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/NewTask'
+              $ref: '#/components/schemas/NewTaskRequest'
       responses:
         '201':
-          description: Task created
-  /tasks/{taskId}:
-    get:
-      summary: Get a specific task
-      operationId: getTask
-      parameters:
-        - name: taskId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Task details
+          description: Task created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Task'
-    put:
-      summary: Update a task
-      operationId: updateTask
+                $ref: '#/components/schemas/TodoTask'
+
+  /tasks/{category}/{taskId}:
+    get:
+      summary: Get a specific task
+      operationId: getSpecificTask
       parameters:
+        - name: category
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Details of the specified task
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoTask'
+
+    put:
+      summary: Update a specific task
+      operationId: updateSpecificTask
+      parameters:
+        - name: category
+          in: path
+          required: true
+          schema:
+            type: string
         - name: taskId
           in: path
           required: true
@@ -65,14 +89,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateTask'
+              $ref: '#/components/schemas/UpdateTaskRequest'
       responses:
         '200':
-          description: Task updated
+          description: Task updated successfully
+
     delete:
-      summary: Delete a task
-      operationId: deleteTask
+      summary: Delete a specific task
+      operationId: deleteSpecificTask
       parameters:
+        - name: category
+          in: path
+          required: true
+          schema:
+            type: string
         - name: taskId
           in: path
           required: true
@@ -80,68 +110,68 @@ paths:
             type: string
       responses:
         '204':
-          description: Task deleted
+          description: Task deleted successfully
+
 components:
   schemas:
-    Task:
+    TodoTask:
       type: object
-      required:
-        - id
-        - title
-        - priority
-        - estimatedTime
-        - dueDate
-        - isComplete
-        - createdAt
       properties:
-        id:
+        PartitionKey:
           type: string
-        title:
+        RowKey:
           type: string
-        description:
+        Title:
           type: string
-        priority:
+        Description:
           type: string
-          enum: [Low, Medium, High, Urgent]
-        estimatedTime:
+        Priority:
+          type: string
+        EstimatedTime:
           type: integer
-          description: Estimated time in minutes
-        dueDate:
+        DueDate:
           type: string
           format: date-time
-        isComplete:
+        IsComplete:
           type: boolean
-        createdAt:
+        CreatedAt:
           type: string
           format: date-time
-    NewTask:
+    NewTaskRequest:
       type: object
-      required:
-        - title
-        - estimatedTime
       properties:
-        title:
+        PartitionKey:
           type: string
-        description:
+        Title:
           type: string
-        estimatedTime:
+        Description:
+          type: string
+        Priority:
+          type: string
+        EstimatedTime:
           type: integer
-          description: Estimated time in minutes
-        dueDate:
+        DueDate:
           type: string
           format: date-time
-    UpdateTask:
+        IsComplete:
+          type: boolean
+    UpdateTaskRequest:
       type: object
       properties:
-        title:
+        PartitionKey:
           type: string
-        description:
+        RowKey:
           type: string
-        priority:
+        Title:
           type: string
-          enum: [Low, Medium, High, Urgent]
-        estimatedTime:
+        Description:
+          type: string
+        Priority:
+          type: string
+        EstimatedTime:
           type: integer
-          description: Estimated time in minutes
-        isComplete:
+        DueDate:
+          type: string
+          format: date-time
+        IsComplete:
           type: boolean
