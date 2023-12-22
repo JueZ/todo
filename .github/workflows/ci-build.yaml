@@ -5,9 +5,6 @@ on:
     branches: [ '*' ]
   pull_request:
     branches: [ '*' ]
-    
-env:
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.'
 
 jobs:
   build-and-deploy:
@@ -33,7 +30,7 @@ jobs:
     - name: 'Resolve Project Dependencies Using Dotnet'
     shell: bash
     run: |
-      pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+      pushd './.'
       dotnet build --configuration Release --output ./output
       popd
 
@@ -43,5 +40,6 @@ jobs:
     with:
       app-name: 'todoAssistant'
       slot-name: 'Production'
-      package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
+      package: './output'
       publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+      
